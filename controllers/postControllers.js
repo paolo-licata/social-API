@@ -1,5 +1,15 @@
 const Post = require("../models/Post");
 
+//Get all posts
+exports.getPosts = async (req, res) => {
+    try {
+        const posts = await Post.find();
+        res.json(posts);
+    } catch (error) {
+        res.status(500).json({ message: "Failed to fetch posts" });
+    }
+}
+
 // Create a new post
 exports.createPost  = async (req, res) => {
     try {        
@@ -17,16 +27,6 @@ exports.createPost  = async (req, res) => {
     } catch (error) {
         console.error("Error creating Post:", error);
         res.status(500).json({ message: "Failed to create post.", error: error.message });
-    }
-}
-
-//Get all posts
-exports.getPosts = async (req, res) => {
-    try {
-        const posts = await Post.find();
-        res.json(posts);
-    } catch (error) {
-        res.status(500).json({ message: "Failed to fetch posts" });
     }
 }
 
@@ -49,5 +49,77 @@ exports.deletePost = async (req, res) => {
         res.status(200).json({ message: "Post deleted successfully." });
     } catch (error) {
         res.status(500).json({ message: "Failed to delete post.", error });
+    }
+}
+
+//Add a comment to a post
+exports.createComment = async (req, res) => {
+    try {
+        const { text } = req.body;
+        const postId = req.params.id;
+        const userId = req.user.id;
+        const post = await Post.findById(postId);
+
+        if (!text) {
+            return res.status(400).json({ message: "Comment cannot be empty." });
+        }
+
+        post.comments.push({ userId, text });
+        await post.save();
+
+        res.status(201).json({ message: "Comment added successfully.", post });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to add comment.", error });
+    }
+}
+
+// Delete a comment from a post
+exports.deleteComment = async (req, res) => {
+    try {
+        const { id: postId, commentId } = req.params;
+        const userId = req.user.id;
+        
+        // Check if post and comment exist
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: "Post not found."});
+
+        const comment = post.comments.find((comm) => comm._id.toString() === commentId);
+        if (!comment) return res.status(404).json({ message: "Comment not found."});
+
+        // Check if the user is the owner of the comment
+        if (comment.userId.toString() !== userId) {
+            return res.status(403).json({ message: "You are not the owner of the comment."});
+        }
+
+        //Delete the comment
+        post.comments = post.comments.filter((comm) => comm._id.toString() !== commentId);
+        await post.save();
+        res.json({ message: "Comment deleted successfully.", post });
+    } catch (error) {
+        res.status(500).json({ message: "Failed to delete comment.", error });
+    }
+}
+
+// Like or unlike a post
+exports.likePost = async (req, res) => {
+    try {
+        const postId = req.params.id;
+        const userId = req.user.id;
+
+        const post = await Post.findById(postId);
+        if (!post) return res.status(404).json({ message: "Post not found."});
+
+        const numLikes = post.likes.indexOf(userId);
+        if (numLikes === -1) {
+            post.likes.push(userId);
+            res.json({ message: "Post liked.", post });
+        } else {
+            post.likes.splice(numLikes, 1);
+            res.json({ message: "Like removed.", post });
+        }
+
+        await post.save();
+    } catch (error) {
+       res.status(500).json({ message: "Failed to like post.", error });
     }
 }
