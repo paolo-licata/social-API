@@ -36,7 +36,7 @@ exports.loginUser = async (req, res) => {
 exports.updateUser = async (req, res) => {
     try {
         const { username, email, password } = req.body;
-        const userId = req.user.id;
+        const userId = req.user.id; // account data extracted from jwt token
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ message: "User not found." });
@@ -53,9 +53,10 @@ exports.updateUser = async (req, res) => {
     }
 }
 
+// Delete user account
 exports.deleteUser = async (req, res) => {
     try {
-        const userId = req.user.id;
+        const userId = req.user.id; // account data extracted from jwt token
 
         const user = await User.findById(userId);
         if (!user) return res.status(404).json({ nessage: "User not found"});
