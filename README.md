@@ -27,7 +27,7 @@ A **RESTful API** built with **Node.js, Express, and MongoDB** to support a basi
 1. **Clone the repository**  
    ```bash
    git clone https://github.com/paolo-licata/social-API.git
-   cd social-media-api
+   cd social-API
    ```
 
 2. **Install dependencies**  
