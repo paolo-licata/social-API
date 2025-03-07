@@ -1,10 +1,13 @@
 const Post = require("../models/Post");
+const User = require("../models/User");
 
 //Get all posts
 exports.getPosts = async (req, res) => {
     try {
-        const posts = await Post.find();
-        res.json(posts);
+        const posts = await Post.find()
+            .populate("userId", "username")
+            .populate("comments.userId", "username");
+        res.status(200).json(posts);
     } catch (error) {
         res.status(500).json({ message: "Failed to fetch posts" });
     }
