@@ -1,15 +1,24 @@
+const path = require("path");
+const fs = require("fs");
 const Post = require("../models/Post");
 const User = require("../models/User");
 const multer = require("multer");
-const path = require("path");
+
+// Define the upload directory and creates one if it is not found
+const uploadDir = path.join(__dirname, "uploads");
+
+if (!fs.existsSync(uploadDir)) {
+    fs.mkdirSync(uploadDir);
+};
 
 //Multer config
 const storage = multer.diskStorage({
     destination: (req, file, cb) => {
-        cb(null, "uploads/"); //Stores the images in "uploads" folder
+        cb(null, uploadDir); //Stores the images in "uploads" folder
     },
     filename: (req, file, cb) => {
-        cb(null, Date.now() + path.extname(file.originalname)); //Unique filename
+        const filename = `${Date.now()}-${file.originalname}`;
+        cb(null, filename ); //Unique filename with timestamp
     }
 })
 
@@ -31,8 +40,12 @@ exports.getPosts = async (req, res) => {
 exports.createPost  = async (req, res) => {
     try {        
         const { description } = req.body;
-        const imageUrl = req.file ? `/uploads/${req.file.filename}` : "";
         const userId = req.user.id;
+        let imageUrl = "";
+
+        if (req.file) {
+            imageUrl = `/uploads/${req.file.filename}`
+        };
 
         const newPost = new Post({
             userId,
