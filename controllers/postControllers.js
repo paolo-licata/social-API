@@ -5,7 +5,7 @@ const User = require("../models/User");
 const multer = require("multer");
 
 // Define the upload directory and creates one if it is not found
-const uploadDir = path.join(__dirname, "uploads");
+const uploadDir = path.join(__dirname, "../uploads");
 
 if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir);
