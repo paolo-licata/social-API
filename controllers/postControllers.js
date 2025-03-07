@@ -1,28 +1,5 @@
-const path = require("path");
-const fs = require("fs");
 const Post = require("../models/Post");
 const User = require("../models/User");
-const multer = require("multer");
-
-// Define the upload directory and creates one if it is not found
-const uploadDir = path.join(__dirname, "../uploads");
-
-if (!fs.existsSync(uploadDir)) {
-    fs.mkdirSync(uploadDir);
-};
-
-//Multer config
-const storage = multer.diskStorage({
-    destination: (req, file, cb) => {
-        cb(null, uploadDir); //Stores the images in "uploads" folder
-    },
-    filename: (req, file, cb) => {
-        const filename = `${Date.now()}-${file.originalname}`;
-        cb(null, filename ); //Unique filename with timestamp
-    }
-})
-
-const upload = multer({ storage: storage });
 
 //Get all posts
 exports.getPosts = async (req, res) => {
@@ -37,20 +14,13 @@ exports.getPosts = async (req, res) => {
 }
 
 // Create a new post
-exports.createPost  = async (req, res) => {
-    try {        
+exports.createPost = async (req, res) => {
+    try {
         const { description } = req.body;
         const userId = req.user.id;
-        let imageUrl = "";
-
-        if (req.file) {
-            imageUrl = `/uploads/${req.file.filename}`
-        };
-
         const newPost = new Post({
             userId,
-            description,
-            imageUrl
+            description
         });
 
         const savedPost = await newPost.save();
@@ -154,5 +124,3 @@ exports.likePost = async (req, res) => {
        res.status(500).json({ message: "Failed to like post.", error });
     }
 }
-
-module.exports.upload = upload;

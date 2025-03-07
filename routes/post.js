@@ -1,7 +1,6 @@
 const router = require("express").Router();
 const { verifyToken } = require("../middleware/auth");
-const { createPost,
-        upload, 
+const { createPost, 
         getPosts, 
         deletePost,
         createComment,
@@ -11,7 +10,7 @@ const { createPost,
 router.get("/", getPosts);
 
 // Creation and Deletion of Posts (require a valid token)
-router.post("/", verifyToken, upload.single("image"), createPost);
+router.post("/", verifyToken, createPost);
 router.delete("/:id", verifyToken, deletePost);
 
 //Comments routing
