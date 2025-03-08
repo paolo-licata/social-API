@@ -115,13 +115,17 @@ exports.likePost = async (req, res) => {
         const numLikes = post.likes.indexOf(userId);
         if (numLikes === -1) {
             post.likes.push(userId);
-            res.json({ message: "Post liked.", post });
         } else {
             post.likes.splice(numLikes, 1);
-            res.json({ message: "Like removed.", post });
         }
 
         await post.save();
+
+        res.json({
+            message: numLikes === -1 ? "Post liked." : "Like removed.",
+            likes: post.likes.length
+        });
+        
     } catch (error) {
        res.status(500).json({ message: "Failed to like post.", error });
     }
