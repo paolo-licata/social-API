@@ -32,6 +32,22 @@ exports.loginUser = async (req, res) => {
     }
 }
 
+// Get a user by ID
+exports.getUser = async (req, res) => {
+    try {
+        const userId = req.user.id
+        const user = await User.findById(userId).select('-password'); //To avoid sending sensitive data
+
+        if (!user) {
+            return res.status(404).json({ message: "No user found."})
+        } else {
+            res.status(200).json(user);
+        }
+    } catch (error) {
+        res.status(500).json({ message: "Error while fetching user"});
+    }
+}
+
 // Update user details
 exports.updateUser = async (req, res) => {
     try {
